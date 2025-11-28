@@ -37,7 +37,7 @@ m = folium.Map(location=[51.5, -0.1], zoom_start=6, tiles='OpenStreetMap')
 
 # Add draw control
 draw = Draw(
-    export=True,
+    export=False,
     draw_options={
         'polyline': False,
         'polygon': True,
@@ -109,4 +109,3 @@ if st.button("🎨 Generate Elevation Map", type="primary", use_container_width=
 # Footer
 st.markdown("---")
 st.markdown("Built with Streamlit • Elevation data from OpenTopography SRTM GL1")
-
