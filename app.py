@@ -9,7 +9,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Now import from the same directory (since we'll copy elevation_gen_lib.py into webapp folder)
-import elevation_gen_lib
+from elevation_gen_lib import generate_elevation_map
 
 st.set_page_config(page_title="Elevation Map Generator", layout="wide", page_icon="🏔️")
 
@@ -109,3 +109,4 @@ if st.button("🎨 Generate Elevation Map", type="primary", use_container_width=
 # Footer
 st.markdown("---")
 st.markdown("Built with Streamlit • Elevation data from OpenTopography SRTM GL1")
+
