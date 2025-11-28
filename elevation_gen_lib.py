@@ -14,7 +14,11 @@ API_URL = "https://portal.opentopography.org/API/globaldem"
 
 def elevation_to_color(elevation, min_elev, max_elev, format='matplotlib'):
     """Map elevation to color: dark blue (low) -> light blue -> cyan -> green -> yellow -> red (high)"""
+    # Clamp elevation to valid range
+    elevation = np.clip(elevation, min_elev, max_elev)
     norm = (elevation - min_elev) / (max_elev - min_elev + 1e-10)
+    # Clamp normalized value to [0, 1]
+    norm = np.clip(norm, 0.0, 1.0)
     
     # Color stops: 0-0.01=dark blue, 0.01-0.1=light blue, 0.1-0.3=cyan, 0.3-0.5=green, 0.5-0.75=yellow, 0.75-1=red
     if norm < 0.01:
@@ -34,6 +38,9 @@ def elevation_to_color(elevation, min_elev, max_elev, format='matplotlib'):
     else:
         t = (norm - 0.75) / 0.25
         r, g, b = int(255), int(255 * (1-t)), int(0)
+    
+    # Clamp RGB values to valid range [0, 255]
+    r, g, b = np.clip(r, 0, 255), np.clip(g, 0, 255), np.clip(b, 0, 255)
     
     if format == 'matplotlib':
         return (r/255.0, g/255.0, b/255.0)
