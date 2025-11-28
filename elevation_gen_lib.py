@@ -112,8 +112,10 @@ def generate_elevation_map(wkt_polygon, vertical_exaggeration=10.0, use_color_gr
     
     # Calculate global elevation range
     all_elevations = np.concatenate(elevation_profiles)
-    global_min = np.min(all_elevations)
-    global_max = np.max(all_elevations)
+    # Clamp negative elevations to 0 for the min/max calculation
+    all_elevations_clamped = np.maximum(all_elevations, 0)
+    global_min = np.min(all_elevations_clamped)
+    global_max = np.max(all_elevations_clamped)
     elevation_range = global_max - global_min
     
     print(f"Elevation range: {elevation_range:.1f}m (min: {global_min:.1f}m, max: {global_max:.1f}m)")
@@ -127,8 +129,16 @@ def generate_elevation_map(wkt_polygon, vertical_exaggeration=10.0, use_color_gr
     amplitude_scale = 0.5
     
     # Calculate figure dimensions to match geographic aspect ratio
-    fig_width = 12  # base width in inches
+    fig_width = 16  # base width in inches
     fig_height = fig_width / aspect_ratio
+    
+    # Limit extreme aspect ratios
+    if fig_height > 20:
+        fig_height = 20
+        fig_width = fig_height * aspect_ratio
+    elif fig_height < 4:
+        fig_height = 4
+        fig_width = fig_height * aspect_ratio
     
     # Generate PNG using matplotlib
     print("Generating PNG...")
@@ -144,13 +154,13 @@ def generate_elevation_map(wkt_polygon, vertical_exaggeration=10.0, use_color_gr
     for i in reversed(range(len(elevation_profiles))):
         profile = elevation_profiles[i]
         
+        # Clamp negative elevations to 0 before processing
+        profile = np.maximum(profile, 0)
+        
         # Apply vertical exaggeration
         exaggerated_profile = global_min + ((profile - global_min) * vertical_exaggeration)
         normalized = (exaggerated_profile - exaggerated_min) / (exaggerated_max - exaggerated_min + 1e-10)
         scaled = normalized * amplitude_scale * vertical_offset * 10
-        
-        # Set negative elevations to 0 in the scaled values
-        scaled = np.where(profile < 0, 0, scaled)
         
         y_offset = i * vertical_offset
         x_vals = np.arange(num_points_per_profile)
