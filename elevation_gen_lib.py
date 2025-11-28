@@ -101,8 +101,6 @@ def generate_elevation_map(wkt_polygon, vertical_exaggeration=10.0, use_color_gr
         elevation_profiles = []
         for r in rows:
             profile = src.read(1)[r, cols]
-            # Set negative elevations to 0
-            profile = np.maximum(profile, 0)
             elevation_profiles.append(profile)
     
     # Calculate global elevation range
@@ -143,6 +141,9 @@ def generate_elevation_map(wkt_polygon, vertical_exaggeration=10.0, use_color_gr
         exaggerated_profile = global_min + ((profile - global_min) * vertical_exaggeration)
         normalized = (exaggerated_profile - exaggerated_min) / (exaggerated_max - exaggerated_min + 1e-10)
         scaled = normalized * amplitude_scale * vertical_offset * 10
+        
+        # Set negative elevations to 0 in the scaled values
+        scaled = np.where(profile < 0, 0, scaled)
         
         y_offset = i * vertical_offset
         x_vals = np.arange(num_points_per_profile)
