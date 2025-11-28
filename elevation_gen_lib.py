@@ -65,11 +65,11 @@ def generate_elevation_map(wkt_polygon, vertical_exaggeration=10.0, use_color_gr
     # Calculate aspect ratio for image dimensions
     lon_range = lon_max - lon_min
     lat_range = lat_max - lat_min
-    aspect_ratio = lon_range / lat_range
     
-    base_height = 1200
-    image_width = int(base_height * aspect_ratio)
-    image_height = base_height
+    # Adjust for latitude distortion (approximate correction)
+    lat_center = (lat_min + lat_max) / 2
+    lon_range_corrected = lon_range * np.cos(np.radians(lat_center))
+    aspect_ratio = lon_range_corrected / lat_range
     
     # Download DEM from OpenTopography
     params = {
@@ -119,15 +119,19 @@ def generate_elevation_map(wkt_polygon, vertical_exaggeration=10.0, use_color_gr
     vertical_offset = 3
     amplitude_scale = 0.5
     
+    # Calculate figure dimensions to match geographic aspect ratio
+    fig_width = 12  # base width in inches
+    fig_height = fig_width / aspect_ratio
+    
     # Generate PNG using matplotlib
     print("Generating PNG...")
-    fig_mpl, ax = plt.subplots(figsize=(image_width/100, image_height/100), dpi=100)
+    fig_mpl, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=200)
     ax.set_xlim(0, num_points_per_profile)
     ax.set_ylim(0, len(elevation_profiles) * vertical_offset)
     ax.set_facecolor('black')
     fig_mpl.patch.set_facecolor('black')
     ax.axis('off')
-    ax.set_aspect('equal')
+    ax.set_aspect('auto')  # Allow aspect to match figure shape
     
     # Plot profiles in reverse order
     for i in reversed(range(len(elevation_profiles))):
