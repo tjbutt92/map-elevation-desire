@@ -132,14 +132,6 @@ def generate_elevation_map(wkt_polygon, vertical_exaggeration=10.0, use_color_gr
     fig_width = 16  # base width in inches
     fig_height = fig_width / aspect_ratio
     
-    # Limit extreme aspect ratios
-    if fig_height > 20:
-        fig_height = 20
-        fig_width = fig_height * aspect_ratio
-    elif fig_height < 4:
-        fig_height = 4
-        fig_width = fig_height * aspect_ratio
-    
     # Generate PNG using matplotlib
     print("Generating PNG...")
     fig_mpl, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=200)
